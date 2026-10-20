@@ -16,8 +16,14 @@ primitives — use the `render` prop, not `asChild`) + Prisma ORM 6 + PostgreSQL
 ### Stack decisions
 - **Prisma**: pinned to classic v6.x (`prisma`/`@prisma/client`). Prisma 7 requires driver adapters and ESM-only
   output which is a much bigger migration than this project needs — do not upgrade without a deliberate decision.
-- **Database**: Neon Postgres. `DATABASE_URL` (pooled, for the app) and `DIRECT_URL` (unpooled, for `prisma migrate`)
-  are both required in `.env` (used by the Prisma CLI) and `.env.local` (used by Next.js).
+- **Database**: Neon Postgres, managed via the Neon CLI + `neon.ts` (project `tiny-cell-11515019`, org
+  `org-shy-queen-65602427`, branch `production`). `DATABASE_URL` (pooled, for the app — note `&pgbouncer=true`,
+  required by Prisma 6 when going through Neon's PgBouncer pooler) and `DIRECT_URL` (unpooled, for `prisma migrate`
+  and other session-level operations) are both required in `.env` (used by the Prisma CLI) and `.env.local` (used
+  by Next.js). `neon deploy` / `neon env pull` only ever write `DATABASE_URL` and `DATABASE_URL_UNPOOLED` — after
+  pulling, copy `DATABASE_URL_UNPOOLED`'s value into `DIRECT_URL` by hand (Prisma's schema key is `DIRECT_URL`,
+  not `DATABASE_URL_UNPOOLED`). The Neon CLI lives at `~/.npm-global/bin/neon`, which may not be on `PATH` by
+  default — add it or invoke the full path.
 - **Double-booking prevention**: Postgres `EXCLUDE USING gist` constraints on `bookings` and `blocked_periods`
   (see `prisma/migrations/20261020141100_booking_exclusion_constraint`), backed by `pg_advisory_xact_lock` in
   `src/lib/booking-engine.ts`. All `DateTime` columns that represent absolute instants use `@db.Timestamptz(3)` —
