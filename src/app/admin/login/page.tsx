@@ -18,8 +18,8 @@ function LoginForm() {
     <form action={formAction} className="mt-6 grid gap-4">
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="grid gap-1.5">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required autoComplete="username" />
+        <Label htmlFor="email">Username</Label>
+        <Input id="email" name="email" type="text" required autoComplete="username" />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="password">Password</Label>

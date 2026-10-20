@@ -47,7 +47,9 @@ See `.env.local` for the full list. Required to run locally: `DATABASE_URL`, `DI
 - `npx prisma migrate dev` — apply schema changes (loads env from `.env`)
 - `npm run db:seed` — seed sample activities/resources/business settings/owner login
 - `npm run db:studio` — Prisma Studio
-- Default seeded owner login: `owner@bobsbar.example.com` / `ChangeMe123!` — change this password before going live.
+- Default seeded owner login: `admin` / `admin` (login field accepts any string, not just email, since
+  `StaffUser.email` is just a unique login identifier) — **this is a temporary placeholder, change it before
+  going live.**
 
 ### Known simplifications (documented, not oversights)
 - `Customer` records aren't created by the booking flow; the admin Customers page aggregates distinct

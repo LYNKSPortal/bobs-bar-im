@@ -51,8 +51,10 @@ async function main() {
   console.log("Set default venue opening hours");
 
   // --- Owner account ------------------------------------------------------
-  const ownerEmail = "owner@bobsbar.example.com";
-  const ownerPassword = "ChangeMe123!";
+  // NOTE: temporary simple credentials for initial setup/testing.
+  // Change this before going live (see admin Settings or re-seed with new values).
+  const ownerEmail = "admin";
+  const ownerPassword = "admin";
   const existingOwner = await prisma.staffUser.findUnique({ where: { email: ownerEmail } });
   if (!existingOwner) {
     await prisma.staffUser.create({
