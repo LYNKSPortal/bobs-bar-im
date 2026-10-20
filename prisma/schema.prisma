@@ -1,0 +1,408 @@
+// Bob's Bar — Entertainment Venue Booking Platform
+// Prisma schema: core data model for activities, resources, bookings,
+// blocked periods, pricing, payments, customers, staff, and settings.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Staff / Admin accounts
+// ---------------------------------------------------------------------------
+
+enum StaffRole {
+  OWNER
+  STAFF
+}
+
+model StaffUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         StaffRole @default(STAFF)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  createdBlocks   BlockedPeriod[]      @relation("BlockCreatedBy")
+  createdBookings Booking[]            @relation("BookingCreatedBy")
+  statusChanges   BookingStatusEvent[] @relation("StatusChangedBy")
+  auditLogs       AuditLog[]
+
+  @@map("staff_users")
+}
+
+// ---------------------------------------------------------------------------
+// Customers
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  notes     String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  bookings Booking[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("customers")
+}
+
+// ---------------------------------------------------------------------------
+// Activities & Resources
+// ---------------------------------------------------------------------------
+
+model Activity {
+  id                     String      @id @default(cuid())
+  name                   String
+  slug                   String      @unique
+  description            String
+  shortDescription       String?
+  imageUrl               String?
+  active                 Boolean     @default(true)
+  sortOrder              Int         @default(0)
+  // Can the customer pick a specific resource, or is it auto-assigned?
+  allowResourceSelection Boolean     @default(false)
+  // Allowed booking durations in minutes, e.g. [30, 60, 90, 120]
+  durationsMinutes       Int[]       @default([60])
+  defaultDurationMinutes Int         @default(60)
+  minPartySize           Int?
+  maxPartySize           Int?
+  // Base price per hour, in the smallest currency unit (e.g. pence)
+  basePriceHourly        Int
+  // Payment behaviour: none (pay at venue), deposit, or full online payment
+  paymentMode            PaymentMode @default(NONE)
+  depositPercent         Int? // only used when paymentMode = DEPOSIT
+  createdAt              DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime    @updatedAt @db.Timestamptz(3)
+
+  resources      Resource[]
+  openingHours   OpeningHours[]
+  dateOverrides  DateOverride[]
+  pricingRules   PricingRule[]
+  bookings       Booking[]
+  blockedPeriods BlockedPeriod[]
+
+  @@map("activities")
+}
+
+enum ResourceStatus {
+  ACTIVE
+  UNAVAILABLE
+  MAINTENANCE
+  RETIRED
+}
+
+model Resource {
+  id          String         @id @default(cuid())
+  activityId  String
+  activity    Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      ResourceStatus @default(ACTIVE)
+  sortOrder   Int            @default(0)
+  createdAt   DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime       @updatedAt @db.Timestamptz(3)
+
+  bookings       Booking[]
+  blockedPeriods BlockedPeriod[]
+
+  @@index([activityId])
+  @@map("resources")
+}
+
+// ---------------------------------------------------------------------------
+// Opening hours & calendar overrides
+// ---------------------------------------------------------------------------
+
+// scope: venue-wide (activityId null) or per-activity
+model OpeningHours {
+  id         String    @id @default(cuid())
+  activityId String? // null = whole-venue default hours
+  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int // 0 = Sunday .. 6 = Saturday
+  isClosed   Boolean   @default(false)
+  openTime   String? // "HH:mm" in business timezone
+  closeTime  String? // "HH:mm" in business timezone
+
+  @@unique([activityId, dayOfWeek])
+  @@map("opening_hours")
+}
+
+// One-off exceptions: holidays, special hours, full closures.
+model DateOverride {
+  id         String    @id @default(cuid())
+  activityId String? // null = whole venue
+  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  date       DateTime  @db.Date
+  isClosed   Boolean   @default(true)
+  openTime   String?
+  closeTime  String?
+  reason     String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@unique([activityId, date])
+  @@map("date_overrides")
+}
+
+// ---------------------------------------------------------------------------
+// Pricing
+// ---------------------------------------------------------------------------
+
+// Optional overrides of Activity.basePriceHourly for specific durations,
+// days of week, or time-of-day windows. The most specific matching rule wins.
+model PricingRule {
+  id              String   @id @default(cuid())
+  activityId      String
+  activity        Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  durationMinutes Int?
+  dayOfWeek       Int? // 0-6, null = any day
+  startTime       String? // "HH:mm", null = any time
+  endTime         String?
+  priceOverride   Int // total price for the matched duration, in smallest currency unit
+  label           String?
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([activityId])
+  @@map("pricing_rules")
+}
+
+// ---------------------------------------------------------------------------
+// Bookings
+// ---------------------------------------------------------------------------
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum BookingSource {
+  ONLINE
+  ADMIN_MANUAL
+  PHONE
+  WALK_IN
+}
+
+enum PaymentMode {
+  NONE
+  DEPOSIT
+  FULL
+}
+
+enum PaymentStatus {
+  NOT_REQUIRED
+  UNPAID
+  DEPOSIT_PAID
+  PAID
+  REFUNDED
+  PARTIALLY_REFUNDED
+  FAILED
+}
+
+model Booking {
+  id          String @id @default(cuid())
+  reference   String @unique // short human-friendly booking code
+  manageToken String @unique // secret token for customer self-service links
+
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id])
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id])
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  // Denormalized contact fields so walk-in bookings don't require a Customer record
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  notes         String?
+
+  startTime       DateTime @db.Timestamptz(3)
+  endTime         DateTime @db.Timestamptz(3)
+  durationMinutes Int
+  partySize       Int?
+
+  status BookingStatus @default(CONFIRMED)
+  source BookingSource @default(ONLINE)
+
+  priceTotal    Int // smallest currency unit
+  currency      String        @default("gbp")
+  paymentMode   PaymentMode   @default(NONE)
+  paymentStatus PaymentStatus @default(NOT_REQUIRED)
+
+  stripePaymentIntentId String? @unique
+
+  arrivedAt    DateTime? @db.Timestamptz(3)
+  completedAt  DateTime? @db.Timestamptz(3)
+  cancelledAt  DateTime? @db.Timestamptz(3)
+  cancelReason String?
+
+  createdById String?
+  createdBy   StaffUser? @relation("BookingCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  statusHistory BookingStatusEvent[]
+  payments      Payment[]
+
+  @@index([resourceId, startTime, endTime])
+  @@index([activityId, startTime])
+  @@index([customerEmail])
+  @@index([status])
+  @@map("bookings")
+}
+
+model BookingStatusEvent {
+  id          String        @id @default(cuid())
+  bookingId   String
+  booking     Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status      BookingStatus
+  note        String?
+  changedById String?
+  changedBy   StaffUser?    @relation("StatusChangedBy", fields: [changedById], references: [id])
+  changedAt   DateTime      @default(now()) @db.Timestamptz(3)
+
+  @@index([bookingId])
+  @@map("booking_status_events")
+}
+
+// ---------------------------------------------------------------------------
+// Blocked periods (manual availability blocks)
+// ---------------------------------------------------------------------------
+
+enum BlockReason {
+  MAINTENANCE
+  PRIVATE_EVENT
+  STAFF_USE
+  RESERVED
+  OTHER
+}
+
+model BlockedPeriod {
+  id         String    @id @default(cuid())
+  // Either a specific resource, or every resource of an activity (resourceId null)
+  resourceId String?
+  resource   Resource? @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  activityId String?
+  activity   Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  startTime DateTime    @db.Timestamptz(3)
+  endTime   DateTime    @db.Timestamptz(3)
+  reason    BlockReason @default(OTHER)
+  note      String?
+
+  // Simple weekly recurrence: when set, this block repeats every week on the
+  // same weekday/time until `recurrenceUntil`. Individual occurrences are
+  // materialized by the availability engine, not stored as separate rows.
+  isRecurring     Boolean   @default(false)
+  recurrenceUntil DateTime? @db.Timestamptz(3)
+
+  createdById String?
+  createdBy   StaffUser? @relation("BlockCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(3)
+
+  @@index([resourceId, startTime, endTime])
+  @@index([activityId, startTime, endTime])
+  @@map("blocked_periods")
+}
+
+// ---------------------------------------------------------------------------
+// Payments
+// ---------------------------------------------------------------------------
+
+model Payment {
+  id                    String        @id @default(cuid())
+  bookingId             String
+  booking               Booking       @relation(fields: [bookingId], references: [id])
+  stripePaymentIntentId String?       @unique
+  amount                Int
+  currency              String        @default("gbp")
+  status                PaymentStatus
+  createdAt             DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@index([bookingId])
+  @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// Business settings (singleton)
+// ---------------------------------------------------------------------------
+
+model BusinessSettings {
+  id           String  @id @default(cuid())
+  businessName String  @default("Bob's Bar")
+  addressLine  String?
+  phone        String?
+  email        String?
+  timezone     String  @default("Europe/London")
+  currency     String  @default("gbp")
+
+  minAdvanceMinutes         Int @default(30)
+  maxAdvanceDays            Int @default(60)
+  bufferMinutes             Int @default(0)
+  slotIntervalMinutes       Int @default(30)
+  cancellationDeadlineHours Int @default(24)
+
+  stripeEnabled Boolean @default(false)
+  emailEnabled  Boolean @default(false)
+
+  facebookUrl  String?
+  instagramUrl String?
+
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("business_settings")
+}
+
+// ---------------------------------------------------------------------------
+// Notifications (admin dashboard alerts)
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([read, createdAt])
+  @@map("notifications")
+}
+
+// ---------------------------------------------------------------------------
+// Audit log
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id         String     @id @default(cuid())
+  staffId    String?
+  staff      StaffUser? @relation(fields: [staffId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime   @default(now()) @db.Timestamptz(3)
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
