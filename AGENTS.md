@@ -57,3 +57,18 @@ See `.env.local` for the full list. Required to run locally: `DATABASE_URL`, `DI
 - Recurring blocked periods are expanded on read (`src/lib/availability.ts`), not materialized as rows.
 - Reports page aggregates on request (no pre-computed rollup tables) — fine at this scale, revisit if booking
   volume grows very large.
+
+### Floor plan table picker (Pool, Snooker)
+- `Resource` has optional `mapX/mapY/mapW/mapH/mapRotation/mapLabel` (percentages of a stylized room schematic,
+  not a real architectural drawing). `Activity.floorPlanEnabled` + `Activity.floorPlanMarkers` (JSON
+  `{label,x,y}[]`, e.g. Entrance/Bar) turn on the picker. Resources without map coordinates are simply omitted
+  from the floor plan.
+- `src/components/booking/floor-plan-picker.tsx` renders the schematic; `getAvailableSlots` /
+  `fetchAvailability` accept an optional `resourceId` to restrict availability to exactly one table (used when a
+  customer picks a specific table before choosing a time).
+- Entry points: `/activities/[slug]` (`ActivityBookingSection` — pick a table on the floor plan first, which
+  locks `BookingWidget` to that resource), and inline inside `BookingDetailsDialog` for any
+  `floorPlanEnabled` activity booked via the homepage/`/book` widget.
+- **Not yet exposed in the admin UI** — table positions are only set via `prisma/seed.ts` today. Adding new
+  resources through the admin Activities page works fine, they just won't appear on the floor plan until given
+  map coordinates (currently only possible via a DB/seed update).

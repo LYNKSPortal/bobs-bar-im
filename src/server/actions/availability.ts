@@ -15,6 +15,7 @@ export async function fetchAvailability(input: {
   activityId: string;
   date: string;
   durationMinutes: number;
+  resourceId?: string;
 }): Promise<AvailabilityActionResult> {
   const parsed = availabilityQuerySchema.safeParse(input);
   if (!parsed.success) {
@@ -26,6 +27,7 @@ export async function fetchAvailability(input: {
     activityId: parsed.data.activityId,
     dateStr: parsed.data.date,
     durationMinutes: parsed.data.durationMinutes,
+    resourceId: parsed.data.resourceId,
     settings,
   });
 

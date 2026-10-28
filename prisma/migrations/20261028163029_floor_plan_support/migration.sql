@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "activities" ADD COLUMN     "floorPlanEnabled" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "floorPlanMarkers" JSONB;
+
+-- AlterTable
+ALTER TABLE "resources" ADD COLUMN     "mapH" DOUBLE PRECISION DEFAULT 10,
+ADD COLUMN     "mapLabel" TEXT,
+ADD COLUMN     "mapRotation" INTEGER DEFAULT 0,
+ADD COLUMN     "mapW" DOUBLE PRECISION DEFAULT 14,
+ADD COLUMN     "mapX" DOUBLE PRECISION,
+ADD COLUMN     "mapY" DOUBLE PRECISION;

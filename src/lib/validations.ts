@@ -4,6 +4,7 @@ export const availabilityQuerySchema = z.object({
   activityId: z.string().min(1),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date"),
   durationMinutes: z.coerce.number().int().positive(),
+  resourceId: z.string().optional(),
 });
 
 export const createBookingSchema = z.object({

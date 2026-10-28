@@ -74,6 +74,12 @@ model Activity {
   sortOrder              Int         @default(0)
   // Can the customer pick a specific resource, or is it auto-assigned?
   allowResourceSelection Boolean     @default(false)
+  // Show an interactive floor plan (table layout) instead of a plain list
+  // when the customer chooses a specific resource. Resources without map
+  // coordinates are simply omitted from the floor plan.
+  floorPlanEnabled       Boolean     @default(false)
+  // Decorative labels on the floor plan, e.g. [{"label":"Entrance","x":8,"y":6}]
+  floorPlanMarkers       Json?
   // Allowed booking durations in minutes, e.g. [30, 60, 90, 120]
   durationsMinutes       Int[]       @default([60])
   defaultDurationMinutes Int         @default(60)
@@ -112,8 +118,18 @@ model Resource {
   description String?
   status      ResourceStatus @default(ACTIVE)
   sortOrder   Int            @default(0)
-  createdAt   DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime       @updatedAt @db.Timestamptz(3)
+
+  // Floor plan position, as percentages (0-100) of the plan's width/height.
+  // Null means this resource is omitted from the floor plan view.
+  mapX        Float?
+  mapY        Float?
+  mapW        Float?  @default(14)
+  mapH        Float?  @default(10)
+  mapRotation Int?    @default(0)
+  mapLabel    String? // short label shown on the floor plan tile, e.g. "P1"
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   bookings       Booking[]
   blockedPeriods BlockedPeriod[]

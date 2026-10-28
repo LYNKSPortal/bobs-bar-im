@@ -23,13 +23,19 @@ export function BookingWidget({
   activities,
   defaultActivityId,
   variant = "light",
+  initialResourceId,
+  onChangeTable,
 }: {
   activities: ActiveActivity[];
   defaultActivityId?: string;
   variant?: "light" | "dark";
+  /** Lock the widget to one specific resource, e.g. a table chosen on a floor plan. */
+  initialResourceId?: string;
+  onChangeTable?: () => void;
 }) {
   const [activityId, setActivityId] = useState(defaultActivityId ?? activities[0]?.id ?? "");
   const activity = useMemo(() => activities.find((a) => a.id === activityId), [activities, activityId]);
+  const lockedResource = initialResourceId ? activity?.resources.find((r) => r.id === initialResourceId) : undefined;
 
   const [date, setDate] = useState<Date>(() => new Date());
   const [duration, setDuration] = useState<number>(activity?.defaultDurationMinutes ?? 60);
@@ -52,10 +58,15 @@ export function BookingWidget({
   useEffect(() => {
     if (!activityId) return;
     startTransition(async () => {
-      const result = await fetchAvailability({ activityId, date: toDateKey(date), durationMinutes: duration });
+      const result = await fetchAvailability({
+        activityId,
+        date: toDateKey(date),
+        durationMinutes: duration,
+        resourceId: initialResourceId,
+      });
       setAvailability(result);
     });
-  }, [activityId, date, duration]);
+  }, [activityId, date, duration, initialResourceId]);
 
   const isDark = variant === "dark";
 
@@ -71,20 +82,36 @@ export function BookingWidget({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-1.5 lg:col-span-1">
           <label className={cn("text-xs font-medium uppercase tracking-wide", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
-            Activity
+            {lockedResource ? "Table" : "Activity"}
           </label>
-          <Select value={activityId} onValueChange={(v) => v && handleActivityChange(v)}>
-            <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
-              <SelectValue placeholder="Choose an activity" />
-            </SelectTrigger>
-            <SelectContent>
-              {activities.map((a) => (
-                <SelectItem key={a.id} value={a.id}>
-                  {a.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {lockedResource ? (
+            <div
+              className={cn(
+                "flex h-9 items-center justify-between rounded-md border px-3 text-sm font-medium",
+                isDark ? "border-white/15 bg-white/5 text-ink-foreground" : "border-border bg-background"
+              )}
+            >
+              <span>{lockedResource.name}</span>
+              {onChangeTable && (
+                <button type="button" onClick={onChangeTable} className="text-xs font-medium text-gold hover:underline">
+                  Change
+                </button>
+              )}
+            </div>
+          ) : (
+            <Select value={activityId} onValueChange={(v) => v && handleActivityChange(v)}>
+              <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
+                <SelectValue placeholder="Choose an activity" />
+              </SelectTrigger>
+              <SelectContent>
+                {activities.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -213,6 +240,7 @@ export function BookingWidget({
           currency={availability?.currency ?? "gbp"}
           availableResourceIds={selectedSlot.availableResourceIds}
           partySize={partySize}
+          forcedResourceId={initialResourceId}
         />
       )}
     </div>

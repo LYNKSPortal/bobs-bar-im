@@ -7,6 +7,11 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const ROOM_MARKERS = [
+  { label: "Entrance", x: 15, y: 6 },
+  { label: "Bar", x: 88, y: 94 },
+];
+
 async function main() {
   console.log("Seeding Bob's Bar...");
 
@@ -69,20 +74,51 @@ async function main() {
   }
 
   // --- Activities & resources --------------------------------------------
+  // Pool and Snooker share one room (see the venue's floor plan), so they use
+  // the same Entrance/Bar markers and a floor-plan-based table picker.
   const pool = await upsertActivity({
     name: "Pool",
     slug: "pool",
     description:
       "American pool on tournament-grade tables. Perfect for a casual game with friends or a competitive grudge match.",
     shortDescription: "Tournament-grade pool tables.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1716155249738-5d6db5d54400?q=80&w=1600&auto=format&fit=crop",
-    allowResourceSelection: false,
+    imageUrl: "https://images.unsplash.com/photo-1716155249738-5d6db5d54400?q=80&w=1600&auto=format&fit=crop",
+    allowResourceSelection: true,
+    floorPlanEnabled: true,
+    floorPlanMarkers: ROOM_MARKERS,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
     basePriceHourly: 1600,
     paymentMode: "NONE",
-    resourceNames: ["Pool Table 1", "Pool Table 2", "Pool Table 3"],
+    resources: [
+      { name: "Pool Table 1", mapLabel: "P1", mapX: 72, mapY: 14, mapW: 18, mapH: 13 },
+      { name: "Pool Table 2", mapLabel: "P2", mapX: 63, mapY: 38, mapW: 15, mapH: 17 },
+      { name: "Pool Table 3", mapLabel: "P3", mapX: 81, mapY: 38, mapW: 15, mapH: 17 },
+      { name: "Pool Table 4", mapLabel: "P4", mapX: 72, mapY: 60, mapW: 18, mapH: 13 },
+      { name: "Pool Table 5", mapLabel: "P5", mapX: 72, mapY: 80, mapW: 18, mapH: 13 },
+    ],
+  });
+
+  const snooker = await upsertActivity({
+    name: "Snooker",
+    slug: "snooker",
+    description:
+      "Full-size snooker tables for a classic, precise game. Quieter corner of the venue, away from the bar.",
+    shortDescription: "Full-size snooker tables.",
+    imageUrl: "https://images.unsplash.com/photo-1716155249738-5d6db5d54400?q=80&w=1600&auto=format&fit=crop",
+    allowResourceSelection: true,
+    floorPlanEnabled: true,
+    floorPlanMarkers: ROOM_MARKERS,
+    durationsMinutes: [30, 60, 90],
+    defaultDurationMinutes: 60,
+    basePriceHourly: 2000,
+    paymentMode: "NONE",
+    resources: [
+      { name: "Snooker Table 1", mapLabel: "S1", mapX: 22, mapY: 18, mapW: 24, mapH: 13 },
+      { name: "Snooker Table 2", mapLabel: "S2", mapX: 22, mapY: 42, mapW: 24, mapH: 13 },
+      { name: "Snooker Table 3", mapLabel: "S3", mapX: 12, mapY: 75, mapW: 14, mapH: 22, mapRotation: 90 },
+      { name: "Snooker Table 4", mapLabel: "S4", mapX: 30, mapY: 75, mapW: 14, mapH: 22, mapRotation: 90 },
+    ],
   });
 
   const golf = await upsertActivity({
@@ -91,8 +127,7 @@ async function main() {
     description:
       "Full-swing golf simulator bays with world-famous courses loaded and launch-monitor stats for every shot.",
     shortDescription: "Play world-famous courses indoors.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1600&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1600&auto=format&fit=crop",
     allowResourceSelection: true,
     durationsMinutes: [60, 90, 120],
     defaultDurationMinutes: 60,
@@ -100,7 +135,7 @@ async function main() {
     paymentMode: "DEPOSIT",
     depositPercent: 20,
     maxPartySize: 6,
-    resourceNames: ["Golf Simulator 1", "Golf Simulator 2"],
+    resources: [{ name: "Golf Simulator 1" }, { name: "Golf Simulator 2" }],
   });
 
   const billiards = await upsertActivity({
@@ -108,18 +143,27 @@ async function main() {
     slug: "billiards",
     description: "Classic English billiards on a full-size table, in a quiet corner of the venue.",
     shortDescription: "Classic English billiards.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1676333047876-0c5ee0716681?q=80&w=1600&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1676333047876-0c5ee0716681?q=80&w=1600&auto=format&fit=crop",
     allowResourceSelection: false,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
     basePriceHourly: 1800,
     paymentMode: "NONE",
-    resourceNames: ["Billiards Table 1"],
+    resources: [{ name: "Billiards Table 1" }],
   });
 
-  console.log("Upserted activities:", pool.slug, golf.slug, billiards.slug);
+  console.log("Upserted activities:", pool.slug, snooker.slug, golf.slug, billiards.slug);
   console.log("Seed complete.");
+}
+
+interface ResourceDef {
+  name: string;
+  mapLabel?: string;
+  mapX?: number;
+  mapY?: number;
+  mapW?: number;
+  mapH?: number;
+  mapRotation?: number;
 }
 
 async function upsertActivity(input: {
@@ -129,19 +173,24 @@ async function upsertActivity(input: {
   shortDescription: string;
   imageUrl: string;
   allowResourceSelection: boolean;
+  floorPlanEnabled?: boolean;
+  floorPlanMarkers?: { label: string; x: number; y: number }[];
   durationsMinutes: number[];
   defaultDurationMinutes: number;
   basePriceHourly: number;
   paymentMode: "NONE" | "DEPOSIT" | "FULL";
   depositPercent?: number;
   maxPartySize?: number;
-  resourceNames: string[];
+  resources: ResourceDef[];
 }) {
   const activity = await prisma.activity.upsert({
     where: { slug: input.slug },
     update: {
       imageUrl: input.imageUrl,
       shortDescription: input.shortDescription,
+      allowResourceSelection: input.allowResourceSelection,
+      floorPlanEnabled: input.floorPlanEnabled ?? false,
+      floorPlanMarkers: input.floorPlanMarkers ?? undefined,
     },
     create: {
       name: input.name,
@@ -150,6 +199,8 @@ async function upsertActivity(input: {
       shortDescription: input.shortDescription,
       imageUrl: input.imageUrl,
       allowResourceSelection: input.allowResourceSelection,
+      floorPlanEnabled: input.floorPlanEnabled ?? false,
+      floorPlanMarkers: input.floorPlanMarkers ?? undefined,
       durationsMinutes: input.durationsMinutes,
       defaultDurationMinutes: input.defaultDurationMinutes,
       basePriceHourly: input.basePriceHourly,
@@ -159,15 +210,22 @@ async function upsertActivity(input: {
     },
   });
 
-  const existingResources = await prisma.resource.count({ where: { activityId: activity.id } });
-  if (existingResources === 0) {
-    await prisma.resource.createMany({
-      data: input.resourceNames.map((name, i) => ({
-        activityId: activity.id,
-        name,
-        sortOrder: i,
-      })),
-    });
+  for (let i = 0; i < input.resources.length; i++) {
+    const def = input.resources[i];
+    const existing = await prisma.resource.findFirst({ where: { activityId: activity.id, name: def.name } });
+    const mapData = {
+      mapLabel: def.mapLabel,
+      mapX: def.mapX,
+      mapY: def.mapY,
+      mapW: def.mapW,
+      mapH: def.mapH,
+      mapRotation: def.mapRotation ?? 0,
+    };
+    if (existing) {
+      await prisma.resource.update({ where: { id: existing.id }, data: mapData });
+    } else {
+      await prisma.resource.create({ data: { activityId: activity.id, name: def.name, sortOrder: i, ...mapData } });
+    }
   }
 
   return activity;

@@ -23,6 +23,8 @@ import { formatPrice } from "@/lib/pricing";
 import { submitBooking } from "@/server/actions/booking";
 import type { ActiveActivity } from "@/server/data/activities";
 
+import { FloorPlanPicker, type FloorPlanMarker } from "./floor-plan-picker";
+
 export function BookingDetailsDialog({
   open,
   onOpenChange,
@@ -34,6 +36,7 @@ export function BookingDetailsDialog({
   currency,
   availableResourceIds,
   partySize,
+  forcedResourceId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -45,6 +48,8 @@ export function BookingDetailsDialog({
   currency: string;
   availableResourceIds: string[];
   partySize?: number;
+  /** Already chosen via a floor plan upstream — skip the in-dialog table picker. */
+  forcedResourceId?: string;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -52,13 +57,14 @@ export function BookingDetailsDialog({
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [resourceId, setResourceId] = useState<string | undefined>(
-    activity.allowResourceSelection ? availableResourceIds[0] : undefined
+    forcedResourceId ?? (activity.allowResourceSelection ? availableResourceIds[0] : undefined)
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ reference: string; manageToken: string } | null>(null);
 
   const resources = activity.resources.filter((r) => availableResourceIds.includes(r.id));
+  const needsResourcePicker = !forcedResourceId && activity.allowResourceSelection && resources.length > 1;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,7 +73,7 @@ export function BookingDetailsDialog({
 
     const result = await submitBooking({
       activityId: activity.id,
-      resourceId: activity.allowResourceSelection ? resourceId : undefined,
+      resourceId: forcedResourceId ?? (activity.allowResourceSelection ? resourceId : undefined),
       date: format(date, "yyyy-MM-dd"),
       startTime: time,
       durationMinutes,
@@ -150,7 +156,18 @@ export function BookingDetailsDialog({
             </div>
 
             <div className="mt-4 grid gap-3">
-              {activity.allowResourceSelection && resources.length > 1 && (
+              {needsResourcePicker && activity.floorPlanEnabled ? (
+                <div className="grid gap-1.5">
+                  <Label>Choose a table</Label>
+                  <FloorPlanPicker
+                    resources={activity.resources}
+                    markers={activity.floorPlanMarkers as unknown as FloorPlanMarker[] | null}
+                    availableResourceIds={availableResourceIds}
+                    selectedResourceId={resourceId}
+                    onSelect={setResourceId}
+                  />
+                </div>
+              ) : needsResourcePicker ? (
                 <div className="grid gap-1.5">
                   <Label>Choose a table</Label>
                   <Select value={resourceId} onValueChange={(v) => v && setResourceId(v)}>
@@ -166,7 +183,7 @@ export function BookingDetailsDialog({
                     </SelectContent>
                   </Select>
                 </div>
-              )}
+              ) : null}
 
               <div className="grid gap-1.5">
                 <Label htmlFor="customerName">Full name</Label>

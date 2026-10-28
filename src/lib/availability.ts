@@ -115,8 +115,10 @@ export async function getAvailableSlots(params: {
   dateStr: string;
   durationMinutes: number;
   settings: BusinessSettings;
+  /** Restrict availability to one specific resource, e.g. a table chosen on the floor plan. */
+  resourceId?: string;
 }): Promise<SlotResult[]> {
-  const { activityId, dateStr, durationMinutes, settings } = params;
+  const { activityId, dateStr, durationMinutes, settings, resourceId: onlyResourceId } = params;
   const timezone = settings.timezone;
 
   const activity = await prisma.activity.findUnique({
@@ -133,7 +135,10 @@ export async function getAvailableSlots(params: {
 
   const dayStart = localDateTimeToUtc(dateStr, "00:00", timezone);
   const dayEnd = addMinutes(dayStart, 24 * 60);
-  const resourceIds = activity.resources.map((r) => r.id);
+  const resourceIds = onlyResourceId
+    ? activity.resources.filter((r) => r.id === onlyResourceId).map((r) => r.id)
+    : activity.resources.map((r) => r.id);
+  if (resourceIds.length === 0) return [];
 
   const [bookings, blocks] = await Promise.all([
     prisma.booking.findMany({

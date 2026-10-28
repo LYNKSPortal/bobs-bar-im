@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Clock, Users } from "lucide-react";
 
-import { BookingWidget } from "@/components/booking/booking-widget";
+import { ActivityBookingSection } from "@/components/booking/activity-booking-section";
 import { getActiveActivities, getActivityBySlug } from "@/server/data/activities";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -63,8 +63,10 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
 
       <section className="border-t border-border bg-secondary/40 py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-6 text-center font-heading text-2xl font-bold">Book {activity.name}</h2>
-          <BookingWidget activities={allActivities} defaultActivityId={activity.id} />
+          {!activity.floorPlanEnabled && (
+            <h2 className="mb-6 text-center font-heading text-2xl font-bold">Book {activity.name}</h2>
+          )}
+          <ActivityBookingSection activity={activity} allActivities={allActivities} />
         </div>
       </section>
     </div>
