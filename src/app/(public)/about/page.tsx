@@ -15,6 +15,7 @@ export default async function AboutPage() {
           src="https://images.unsplash.com/photo-1559519529-0936e4058364?q=80&w=2000&auto=format&fit=crop"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-transparent" />

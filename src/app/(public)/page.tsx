@@ -18,6 +18,7 @@ export default async function HomePage() {
           alt="Bob's Bar storefront at night"
           fill
           priority
+          sizes="100vw"
           className="object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/85 to-ink" />
@@ -78,7 +79,7 @@ export default async function HomePage() {
             <h2 className="font-heading text-3xl font-bold">Our Activities</h2>
             <p className="mt-2 text-muted-foreground">Everything you need for a great night out.</p>
           </div>
-          <Button render={<Link href="/activities" />} variant="outline" className="hidden sm:inline-flex">
+          <Button render={<Link href="/activities" />} nativeButton={false} variant="outline" className="hidden sm:inline-flex">
             View all <ArrowRight className="ml-2 size-4" />
           </Button>
         </div>
@@ -96,6 +97,7 @@ export default async function HomePage() {
                     src={activity.imageUrl}
                     alt={activity.name}
                     fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
@@ -120,7 +122,7 @@ export default async function HomePage() {
           ))}
         </div>
 
-        <Button render={<Link href="/activities" />} variant="outline" className="mt-8 w-full sm:hidden">
+        <Button render={<Link href="/activities" />} nativeButton={false} variant="outline" className="mt-8 w-full sm:hidden">
           View all activities <ArrowRight className="ml-2 size-4" />
         </Button>
       </section>
@@ -130,7 +132,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
           <h2 className="font-heading text-3xl font-bold text-ink-foreground sm:text-4xl">Ready for a game?</h2>
           <p className="mt-3 text-ink-foreground/70">Grab a table before it&rsquo;s gone &mdash; booking takes less than a minute.</p>
-          <Button render={<Link href="/book" />} size="lg" className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90">
+          <Button render={<Link href="/book" />} nativeButton={false} size="lg" className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90">
             Book a table
           </Button>
         </div>

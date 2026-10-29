@@ -27,7 +27,7 @@ export default async function AdminDashboardPage() {
           <NewBookingDialog activities={schedule.activities} />
           <BlockTimeDialog activities={schedule.activities} />
           <BlockFullDayDialog />
-          <Button variant="outline" render={<Link href="/admin/calendar" />}>
+          <Button variant="outline" render={<Link href="/admin/calendar" />} nativeButton={false}>
             <CalendarDays className="mr-2 size-4" /> View Calendar
           </Button>
         </div>

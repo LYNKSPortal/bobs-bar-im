@@ -47,7 +47,7 @@ export function SiteHeader({ businessName }: { businessName: string }) {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button render={<Link href="/book" />} className="bg-gold text-gold-foreground hover:bg-gold/90">
+          <Button render={<Link href="/book" />} nativeButton={false} className="bg-gold text-gold-foreground hover:bg-gold/90">
             Book Now
           </Button>
         </div>
@@ -76,6 +76,7 @@ export function SiteHeader({ businessName }: { businessName: string }) {
               ))}
               <Button
                 render={<Link href="/book" onClick={() => setOpen(false)} />}
+                nativeButton={false}
                 className="mt-4 bg-gold text-gold-foreground hover:bg-gold/90"
               >
                 Book Now

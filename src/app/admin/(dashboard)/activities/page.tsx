@@ -17,7 +17,7 @@ export default async function AdminActivitiesPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-bold sm:text-3xl">Activities</h1>
-        <Button render={<Link href="/admin/activities/new" />} className="bg-gold text-gold-foreground hover:bg-gold/90">
+        <Button render={<Link href="/admin/activities/new" />} nativeButton={false} className="bg-gold text-gold-foreground hover:bg-gold/90">
           <Plus className="mr-2 size-4" /> Add Activity
         </Button>
       </div>
@@ -40,7 +40,7 @@ export default async function AdminActivitiesPage() {
               </div>
               <div className="flex items-center gap-3">
                 <ActivityActiveToggle activityId={activity.id} active={activity.active} />
-                <Button variant="outline" size="sm" render={<Link href={`/admin/activities/${activity.id}`} />}>
+                <Button variant="outline" size="sm" render={<Link href={`/admin/activities/${activity.id}`} />} nativeButton={false}>
                   Manage
                 </Button>
               </div>

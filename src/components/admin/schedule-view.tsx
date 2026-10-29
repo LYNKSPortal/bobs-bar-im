@@ -193,7 +193,7 @@ export function ScheduleView({
                         Cancel booking
                       </Button>
                     </div>
-                    <Button size="sm" variant="ghost" render={<Link href={`/admin/bookings/${selectedItem.id}`} />}>
+                    <Button size="sm" variant="ghost" render={<Link href={`/admin/bookings/${selectedItem.id}`} />} nativeButton={false}>
                       View full details
                     </Button>
                   </>

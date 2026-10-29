@@ -22,7 +22,9 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
   return (
     <div>
       <section className="relative h-72 w-full overflow-hidden sm:h-96">
-        {activity.imageUrl && <Image src={activity.imageUrl} alt={activity.name} fill priority className="object-cover" />}
+        {activity.imageUrl && (
+          <Image src={activity.imageUrl} alt={activity.name} fill priority sizes="100vw" className="object-cover" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
           <h1 className="font-heading text-4xl font-bold text-white sm:text-5xl">{activity.name}</h1>

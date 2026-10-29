@@ -86,10 +86,10 @@ export default async function ConfirmationPage({
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button render={<Link href={`/manage/${booking.manageToken}`} />} className="flex-1 bg-gold text-gold-foreground hover:bg-gold/90">
+        <Button render={<Link href={`/manage/${booking.manageToken}`} />} nativeButton={false} className="flex-1 bg-gold text-gold-foreground hover:bg-gold/90">
           Manage booking
         </Button>
-        <Button render={<Link href="/" />} variant="outline" className="flex-1">
+        <Button render={<Link href="/" />} nativeButton={false} variant="outline" className="flex-1">
           Back to home
         </Button>
       </div>
