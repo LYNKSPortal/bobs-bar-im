@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Users } from "lucide-react";
+import { CalendarIcon, Loader2, Phone, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -203,8 +203,16 @@ export function BookingWidget({
       </div>
 
       <div className="mt-6">
-        <p className={cn("mb-3 text-xs font-medium uppercase tracking-wide", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
+        <p className={cn("mb-1 text-xs font-medium uppercase tracking-wide", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
           Available times
+        </p>
+        <p className={cn("mb-3 flex items-center gap-1.5 text-xs", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
+          <Phone className="size-3.5 shrink-0 text-gold" />
+          Need something within the next hour or two? Call us on{" "}
+          <a href="tel:01624622333" className="font-medium text-gold hover:underline">
+            01624 622333
+          </a>
+          .
         </p>
 
         {isPending ? (
