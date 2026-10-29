@@ -138,21 +138,22 @@ async function main() {
     resources: [{ name: "Golf Simulator 1" }, { name: "Golf Simulator 2" }],
   });
 
-  const billiards = await upsertActivity({
-    name: "Billiards",
-    slug: "billiards",
-    description: "Classic English billiards on a full-size table, in a quiet corner of the venue.",
-    shortDescription: "Classic English billiards.",
-    imageUrl: "https://images.unsplash.com/photo-1676333047876-0c5ee0716681?q=80&w=1600&auto=format&fit=crop",
+  const darts = await upsertActivity({
+    name: "Virtual Steel Tip Darts",
+    slug: "darts",
+    description:
+      "Electronic scoring steel-tip dartboards with built-in game modes, so you can focus on throwing while the board does the maths.",
+    shortDescription: "Electronic scoring steel-tip dartboards.",
+    imageUrl: "https://images.unsplash.com/photo-1756363212224-dca8af2eac90?q=80&w=1600&auto=format&fit=crop",
     allowResourceSelection: false,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
-    basePriceHourly: 1800,
+    basePriceHourly: 1500,
     paymentMode: "NONE",
-    resources: [{ name: "Billiards Table 1" }],
+    resources: [{ name: "Dart Board 1" }, { name: "Dart Board 2" }],
   });
 
-  console.log("Upserted activities:", pool.slug, snooker.slug, golf.slug, billiards.slug);
+  console.log("Upserted activities:", pool.slug, snooker.slug, golf.slug, darts.slug);
   console.log("Seed complete.");
 }
 

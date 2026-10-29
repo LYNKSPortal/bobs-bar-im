@@ -26,7 +26,7 @@ export default async function AboutPage() {
 
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p className="text-lg leading-relaxed text-muted-foreground">
-          {settings.businessName} is the city&rsquo;s premier spot for pool, golf simulation, and billiards. We built this
+          {settings.businessName} is the city&rsquo;s premier spot for pool, snooker, golf simulation, and darts. We built this
           place for people who love a good game as much as a good night out &mdash; tournament-grade tables, full-swing
           simulator bays, and a space designed for friends, dates, and corporate nights alike.
         </p>

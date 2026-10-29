@@ -32,7 +32,7 @@ export function SiteFooter({ settings }: { settings: BusinessSettings }) {
             <span className="sr-only">{settings.businessName}</span>
           </Link>
           <p className="mt-4 max-w-xs text-sm text-ink-foreground/60">
-            Pool, golf simulators, and billiards in the heart of the city. Walk in or book online in seconds.
+            Pool, snooker, golf simulators, and darts in the heart of the city. Walk in or book online in seconds.
           </p>
           <div className="mt-5 flex gap-3">
             {settings.facebookUrl && (

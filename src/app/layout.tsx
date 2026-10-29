@@ -22,11 +22,11 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bob's Bar — Pool, Golf Simulators & Billiards",
+    default: "Bob's Bar — Pool, Snooker, Golf Simulators & Darts",
     template: "%s | Bob's Bar",
   },
   description:
-    "Book pool tables, golf simulators, and billiards tables online at Bob's Bar. Real-time availability, instant confirmation.",
+    "Book pool tables, snooker tables, golf simulators, and darts online at Bob's Bar. Real-time availability, instant confirmation.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

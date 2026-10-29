@@ -29,7 +29,7 @@ export default async function HomePage() {
               <Sparkles className="size-3.5" /> Book instantly, no account needed
             </span>
             <h1 className="mt-6 font-heading text-4xl font-bold leading-tight text-ink-foreground sm:text-5xl lg:text-6xl">
-              Pool, Golf &amp; Billiards.
+              Pool, Snooker &amp; Golf.
               <br />
               <span className="text-gold">Book your table in seconds.</span>
             </h1>
