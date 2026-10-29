@@ -99,7 +99,11 @@ export function BookingWidget({
               )}
             </div>
           ) : (
-            <Select value={activityId} onValueChange={(v) => v && handleActivityChange(v)}>
+            <Select
+              value={activityId}
+              onValueChange={(v) => v && handleActivityChange(v)}
+              items={Object.fromEntries(activities.map((a) => [a.id, a.name]))}
+            >
               <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
                 <SelectValue placeholder="Choose an activity" />
               </SelectTrigger>
@@ -146,7 +150,11 @@ export function BookingWidget({
           <label className={cn("text-xs font-medium uppercase tracking-wide", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
             Duration
           </label>
-          <Select value={String(duration)} onValueChange={(v) => setDuration(Number(v))}>
+          <Select
+            value={String(duration)}
+            onValueChange={(v) => v && setDuration(Number(v))}
+            items={Object.fromEntries((activity?.durationsMinutes ?? [60]).map((d) => [String(d), `${d} minutes`]))}
+          >
             <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
               <SelectValue />
             </SelectTrigger>
@@ -166,7 +174,16 @@ export function BookingWidget({
               <Users className="mr-1 inline size-3" />
               Party size
             </label>
-            <Select value={String(partySize ?? activity.minPartySize ?? 1)} onValueChange={(v) => setPartySize(Number(v))}>
+            <Select
+              value={String(partySize ?? activity.minPartySize ?? 1)}
+              onValueChange={(v) => v && setPartySize(Number(v))}
+              items={Object.fromEntries(
+                Array.from(
+                  { length: (activity.maxPartySize ?? 1) - (activity.minPartySize ?? 1) + 1 },
+                  (_, i) => (activity.minPartySize ?? 1) + i
+                ).map((n) => [String(n), `${n} ${n === 1 ? "person" : "people"}`])
+              )}
+            >
               <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
                 <SelectValue />
               </SelectTrigger>

@@ -32,7 +32,11 @@ export default async function AdminBookingsPage({
 
       <form className="flex flex-wrap gap-3" method="GET">
         <Input name="q" placeholder="Search by name, email, phone, or reference" defaultValue={sp.q} className="max-w-xs" />
-        <Select name="status" defaultValue={sp.status ?? "ALL"}>
+        <Select
+          name="status"
+          defaultValue={sp.status ?? "ALL"}
+          items={Object.fromEntries(STATUS_OPTIONS.map((s) => [s, s === "ALL" ? "All statuses" : s]))}
+        >
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
@@ -44,7 +48,11 @@ export default async function AdminBookingsPage({
             ))}
           </SelectContent>
         </Select>
-        <Select name="activityId" defaultValue={sp.activityId ?? "ALL"}>
+        <Select
+          name="activityId"
+          defaultValue={sp.activityId ?? "ALL"}
+          items={{ ALL: "All activities", ...Object.fromEntries(activities.map((a) => [a.id, a.name])) }}
+        >
           <SelectTrigger className="w-44">
             <SelectValue />
           </SelectTrigger>

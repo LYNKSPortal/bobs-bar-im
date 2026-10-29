@@ -170,7 +170,11 @@ export function BookingDetailsDialog({
               ) : needsResourcePicker ? (
                 <div className="grid gap-1.5">
                   <Label>Choose a table</Label>
-                  <Select value={resourceId} onValueChange={(v) => v && setResourceId(v)}>
+                  <Select
+                    value={resourceId}
+                    onValueChange={(v) => v && setResourceId(v)}
+                    items={Object.fromEntries(resources.map((r) => [r.id, r.name]))}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>

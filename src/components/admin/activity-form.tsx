@@ -143,7 +143,17 @@ export function ActivityForm({ initial }: { initial?: ActivityInitial }) {
         </div>
         <div className="grid gap-1.5">
           <Label>Default duration</Label>
-          <Select value={String(form.defaultDurationMinutes)} onValueChange={(v) => update("defaultDurationMinutes", Number(v))}>
+          <Select
+            value={String(form.defaultDurationMinutes)}
+            onValueChange={(v) => v && update("defaultDurationMinutes", Number(v))}
+            items={Object.fromEntries(
+              durationsText
+                .split(",")
+                .map((s) => Number(s.trim()))
+                .filter((n) => Number.isFinite(n) && n > 0)
+                .map((d) => [String(d), `${d} min`])
+            )}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -169,7 +179,11 @@ export function ActivityForm({ initial }: { initial?: ActivityInitial }) {
         </div>
         <div className="grid gap-1.5">
           <Label>Payment</Label>
-          <Select value={form.paymentMode} onValueChange={(v) => update("paymentMode", v as ActivityInitial["paymentMode"])}>
+          <Select
+            value={form.paymentMode}
+            onValueChange={(v) => v && update("paymentMode", v as ActivityInitial["paymentMode"])}
+            items={{ NONE: "Pay at venue", DEPOSIT: "Deposit online", FULL: "Full payment online" }}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>

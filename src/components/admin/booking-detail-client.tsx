@@ -147,7 +147,11 @@ export function BookingDetailClient({ booking }: { booking: BookingDetail }) {
                     value={duration}
                     onChange={(e) => setDuration(Number(e.target.value))}
                   />
-                  <Select value={resourceId} onValueChange={(v) => v && setResourceId(v)}>
+                  <Select
+                    value={resourceId}
+                    onValueChange={(v) => v && setResourceId(v)}
+                    items={Object.fromEntries(booking.resources.map((r) => [r.id, r.name]))}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>

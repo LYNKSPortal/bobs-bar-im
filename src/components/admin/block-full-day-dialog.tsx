@@ -83,7 +83,11 @@ export function BlockFullDayDialog({ defaultDate }: { defaultDate?: Date }) {
 
             <div className="grid gap-1.5">
               <Label>Reason</Label>
-              <Select value={reason} onValueChange={(v) => setReason(v as typeof reason)}>
+              <Select
+                value={reason}
+                onValueChange={(v) => v && setReason(v as typeof reason)}
+                items={Object.fromEntries(REASONS.map((r) => [r.value, r.label]))}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>

@@ -57,7 +57,11 @@ export function ResourceManager({ activityId, resources }: { activityId: string;
               <span className="font-medium">{r.name}</span>
               <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
             </div>
-            <Select value={r.status} onValueChange={(v) => handleStatusChange(r.id, v as (typeof STATUS_OPTIONS)[number])}>
+            <Select
+              value={r.status}
+              onValueChange={(v) => v && handleStatusChange(r.id, v as (typeof STATUS_OPTIONS)[number])}
+              items={Object.fromEntries(STATUS_OPTIONS.map((s) => [s, s]))}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>

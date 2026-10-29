@@ -133,6 +133,7 @@ export function NewBookingDialog({
                     setActivityId(v);
                     setResourceId("");
                   }}
+                  items={Object.fromEntries(activities.map((a) => [a.id, a.name]))}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -148,7 +149,11 @@ export function NewBookingDialog({
               </div>
               <div className="grid gap-1.5">
                 <Label>Resource</Label>
-                <Select value={resourceId || resources[0]?.id} onValueChange={(v) => v && setResourceId(v)}>
+                <Select
+                  value={resourceId || resources[0]?.id}
+                  onValueChange={(v) => v && setResourceId(v)}
+                  items={Object.fromEntries(resources.map((r) => [r.id, r.name]))}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

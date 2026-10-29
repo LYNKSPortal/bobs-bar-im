@@ -128,7 +128,11 @@ export function BlockTimeDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label>Block</Label>
-                <Select value={scope} onValueChange={(v) => setScope(v as "resource" | "activity")}>
+                <Select
+                  value={scope}
+                  onValueChange={(v) => v && setScope(v as "resource" | "activity")}
+                  items={{ resource: "A specific resource", activity: "An entire activity" }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -147,6 +151,7 @@ export function BlockTimeDialog({
                     setActivityId(v);
                     setResourceId("");
                   }}
+                  items={Object.fromEntries(activities.map((a) => [a.id, a.name]))}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -165,7 +170,11 @@ export function BlockTimeDialog({
             {scope === "resource" && (
               <div className="grid gap-1.5">
                 <Label>Resource</Label>
-                <Select value={resourceId || resources[0]?.id} onValueChange={(v) => v && setResourceId(v)}>
+                <Select
+                  value={resourceId || resources[0]?.id}
+                  onValueChange={(v) => v && setResourceId(v)}
+                  items={Object.fromEntries(resources.map((r) => [r.id, r.name]))}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -205,7 +214,11 @@ export function BlockTimeDialog({
 
             <div className="grid gap-1.5">
               <Label>Reason</Label>
-              <Select value={reason} onValueChange={(v) => setReason(v as typeof reason)}>
+              <Select
+                value={reason}
+                onValueChange={(v) => v && setReason(v as typeof reason)}
+                items={Object.fromEntries(REASONS.map((r) => [r.value, r.label]))}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
