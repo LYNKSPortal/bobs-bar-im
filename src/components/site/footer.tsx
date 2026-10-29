@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Martini, Phone } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 
 import type { BusinessSettings } from "@/lib/settings";
 
@@ -27,10 +28,8 @@ export function SiteFooter({ settings }: { settings: BusinessSettings }) {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div>
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-full bg-gold text-gold-foreground">
-              <Martini className="size-5" />
-            </span>
-            <span className="font-heading text-xl font-semibold">{settings.businessName}</span>
+            <Image src="/logo.png" alt={settings.businessName} width={140} height={50} className="h-10 w-auto" />
+            <span className="sr-only">{settings.businessName}</span>
           </Link>
           <p className="mt-4 max-w-xs text-sm text-ink-foreground/60">
             Pool, golf simulators, and billiards in the heart of the city. Walk in or book online in seconds.

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -61,9 +62,7 @@ export function AdminSidebar({ staffName }: { staffName: string }) {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-        <span className="flex size-8 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
-          <Martini className="size-4" />
-        </span>
+        <Image src="/logo.png" alt="Bob's Bar" width={120} height={43} className="h-8 w-auto" />
         <span className="font-heading text-lg font-semibold">Admin</span>
       </div>
       <div className="flex-1 overflow-y-auto py-4">
@@ -86,9 +85,7 @@ export function AdminMobileNav({ staffName }: { staffName: string }) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-sidebar px-4 text-sidebar-foreground md:hidden">
       <Link href="/admin" className="flex items-center gap-2">
-        <span className="flex size-7 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
-          <Martini className="size-3.5" />
-        </span>
+        <Image src="/logo.png" alt="Bob's Bar" width={110} height={39} className="h-7 w-auto" />
         <span className="font-heading text-base font-semibold">Admin</span>
       </Link>
       <Sheet>

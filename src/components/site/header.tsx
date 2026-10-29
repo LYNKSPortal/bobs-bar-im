@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, Martini } from "lucide-react";
+import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -25,10 +26,8 @@ export function SiteHeader({ businessName }: { businessName: string }) {
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-ink/95 backdrop-blur supports-[backdrop-filter]:bg-ink/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 text-ink-foreground">
-          <span className="flex size-9 items-center justify-center rounded-full bg-gold text-gold-foreground">
-            <Martini className="size-5" />
-          </span>
-          <span className="font-heading text-xl font-semibold tracking-tight">{businessName}</span>
+          <Image src="/logo.png" alt={businessName} width={140} height={50} className="h-9 w-auto" priority />
+          <span className="sr-only">{businessName}</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
