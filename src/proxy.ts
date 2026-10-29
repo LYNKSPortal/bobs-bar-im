@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/admin/login") {
+  if (pathname === "/admin/login" || pathname === "/admin/forgot-password" || pathname.startsWith("/admin/reset-password/")) {
     return NextResponse.next();
   }
 

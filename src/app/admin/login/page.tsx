@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useActionState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Loader2, Lock, Martini } from "lucide-react";
 
@@ -32,6 +33,10 @@ function LoginForm() {
         {pending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Lock className="mr-2 size-4" />}
         Sign in
       </Button>
+
+      <Link href="/admin/forgot-password" className="text-center text-sm text-muted-foreground hover:text-gold">
+        Forgot password?
+      </Link>
     </form>
   );
 }

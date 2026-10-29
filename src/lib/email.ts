@@ -115,6 +115,22 @@ export async function sendContactMessageEmail(data: { to: string; fromName: stri
   });
 }
 
+export async function sendPasswordResetEmail(data: { to: string; resetUrl: string }) {
+  if (!resend) return { skipped: true };
+
+  return resend.emails.send({
+    from: FROM,
+    to: data.to,
+    subject: "Reset your Bob's Bar admin password",
+    html: emailShell(
+      "Reset your password",
+      `<p>We received a request to reset your admin password. This link expires in 1 hour.</p>
+       <p style="margin-top:20px;"><a href="${data.resetUrl}" style="background:#f2c879;color:#1c1a17;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Reset password</a></p>
+       <p style="margin-top:20px;color:#8a8375;">If you didn't request this, you can ignore this email.</p>`
+    ),
+  });
+}
+
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
