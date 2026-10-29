@@ -38,7 +38,7 @@ async function main() {
     console.log("Created business settings");
   }
 
-  // --- Venue-wide opening hours (10:00 - 23:00 every day) ---------------
+  // --- Venue-wide opening hours (12:00 - 00:00 every day) ---------------
   for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
     const existing = await prisma.openingHours.findFirst({ where: { activityId: null, dayOfWeek } });
     if (!existing) {
@@ -47,8 +47,8 @@ async function main() {
           activityId: null,
           dayOfWeek,
           isClosed: false,
-          openTime: "10:00",
-          closeTime: dayOfWeek === 5 || dayOfWeek === 6 ? "00:00" : "23:00",
+          openTime: "12:00",
+          closeTime: "00:00",
         },
       });
     }
@@ -88,7 +88,7 @@ async function main() {
     floorPlanMarkers: ROOM_MARKERS,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
-    basePriceHourly: 1600,
+    basePriceHourly: 600,
     paymentMode: "NONE",
     resources: [
       { name: "Pool Table 1", mapLabel: "P1", mapX: 72, mapY: 14, mapW: 18, mapH: 13 },
@@ -111,7 +111,7 @@ async function main() {
     floorPlanMarkers: ROOM_MARKERS,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
-    basePriceHourly: 2000,
+    basePriceHourly: 900,
     paymentMode: "NONE",
     resources: [
       { name: "Snooker Table 1", mapLabel: "S1", mapX: 22, mapY: 18, mapW: 24, mapH: 13 },
@@ -131,7 +131,7 @@ async function main() {
     allowResourceSelection: true,
     durationsMinutes: [60, 90, 120],
     defaultDurationMinutes: 60,
-    basePriceHourly: 3000,
+    basePriceHourly: 2000,
     paymentMode: "DEPOSIT",
     depositPercent: 20,
     maxPartySize: 6,
@@ -148,7 +148,7 @@ async function main() {
     allowResourceSelection: false,
     durationsMinutes: [30, 60, 90],
     defaultDurationMinutes: 60,
-    basePriceHourly: 1500,
+    basePriceHourly: 600,
     paymentMode: "NONE",
     resources: [{ name: "Dart Board 1" }, { name: "Dart Board 2" }],
   });

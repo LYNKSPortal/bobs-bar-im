@@ -181,7 +181,10 @@ export async function getAvailableSlots(params: {
   }
 
   const openMinutes = timeToMinutes(window.open);
-  const closeMinutes = timeToMinutes(window.close);
+  // A close time at or before the open time (e.g. "00:00") means the venue
+  // closes after midnight, i.e. the following day.
+  const rawCloseMinutes = timeToMinutes(window.close);
+  const closeMinutes = rawCloseMinutes <= openMinutes ? rawCloseMinutes + 24 * 60 : rawCloseMinutes;
   const interval = settings.slotIntervalMinutes || 30;
   const buffer = settings.bufferMinutes || 0;
 

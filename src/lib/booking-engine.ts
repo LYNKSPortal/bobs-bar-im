@@ -52,7 +52,10 @@ export async function createBooking(input: CreateBookingInput) {
     throw new ValidationFailedError("The venue is closed on the selected date.");
   }
   const openMin = timeToMinutes(window.open);
-  const closeMin = timeToMinutes(window.close);
+  // A close time at or before the open time (e.g. "00:00") means the venue
+  // closes after midnight, i.e. the following day.
+  const rawCloseMin = timeToMinutes(window.close);
+  const closeMin = rawCloseMin <= openMin ? rawCloseMin + 24 * 60 : rawCloseMin;
   const startMin = timeToMinutes(input.startTimeStr);
   if (startMin < openMin || startMin + input.durationMinutes > closeMin) {
     throw new ValidationFailedError("The selected time is outside opening hours.");
