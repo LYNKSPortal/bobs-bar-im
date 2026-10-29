@@ -14,11 +14,11 @@ export default async function HomePage() {
       {/* Hero + booking widget, above the fold */}
       <section className="relative overflow-hidden bg-ink">
         <Image
-          src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2000&auto=format&fit=crop"
-          alt=""
+          src="/hero-image.jpg"
+          alt="Bob's Bar storefront at night"
           fill
           priority
-          className="object-cover opacity-30"
+          className="object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/85 to-ink" />
 
