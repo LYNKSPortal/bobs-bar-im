@@ -24,9 +24,9 @@ export function SiteHeader({ businessName }: { businessName: string }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-ink/95 backdrop-blur supports-[backdrop-filter]:bg-ink/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 text-ink-foreground">
-          <Image src="/logo.png" alt={businessName} width={140} height={50} className="h-9 w-auto" priority />
+          <Image src="/logo.png" alt={businessName} width={200} height={71} className="w-[200px] h-auto" priority />
           <span className="sr-only">{businessName}</span>
         </Link>
 
