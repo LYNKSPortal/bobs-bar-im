@@ -153,7 +153,7 @@ export function BookingWidget({
           <Select
             value={String(duration)}
             onValueChange={(v) => v && setDuration(Number(v))}
-            items={Object.fromEntries((activity?.durationsMinutes ?? [60]).map((d) => [String(d), `${d} minutes`]))}
+            items={Object.fromEntries((activity?.durationsMinutes ?? [60]).map((d) => [String(d), formatDuration(d)]))}
           >
             <SelectTrigger className={cn("w-full", isDark && "border-white/15 bg-white/5 text-ink-foreground")}>
               <SelectValue />
@@ -161,7 +161,7 @@ export function BookingWidget({
             <SelectContent>
               {(activity?.durationsMinutes ?? [60]).map((d) => (
                 <SelectItem key={d} value={String(d)}>
-                  {d} minutes
+                  {formatDuration(d)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -262,6 +262,14 @@ export function BookingWidget({
       )}
     </div>
   );
+}
+
+function formatDuration(minutes: number) {
+  if (minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return `${hours} hour${hours === 1 ? "" : "s"}`;
+  }
+  return `${minutes} minutes`;
 }
 
 function formatTimeLabel(time: string) {
