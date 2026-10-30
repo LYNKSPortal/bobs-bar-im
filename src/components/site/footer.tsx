@@ -63,10 +63,8 @@ export function SiteFooter({ settings }: { settings: BusinessSettings }) {
         <div>
           <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-gold">Explore</h3>
           <ul className="mt-4 space-y-2 text-sm text-ink-foreground/70">
-            <li><Link href="/activities" className="hover:text-gold">Activities</Link></li>
+            <li><Link href="/" className="hover:text-gold">Home</Link></li>
             <li><Link href="/book" className="hover:text-gold">Book Now</Link></li>
-            <li><Link href="/about" className="hover:text-gold">About Us</Link></li>
-            <li><Link href="/faq" className="hover:text-gold">FAQ</Link></li>
           </ul>
         </div>
 

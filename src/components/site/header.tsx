@@ -12,10 +12,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/activities", label: "Activities" },
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
-  { href: "/faq", label: "FAQ" },
 ];
 
 export function SiteHeader({ businessName }: { businessName: string }) {
