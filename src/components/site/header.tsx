@@ -10,10 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/contact", label: "Contact" },
-];
+const NAV_LINKS = [{ href: "/contact", label: "Contact" }];
 
 export function SiteHeader({ businessName }: { businessName: string }) {
   const pathname = usePathname();
@@ -21,13 +18,13 @@ export function SiteHeader({ businessName }: { businessName: string }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-ink/95 backdrop-blur supports-[backdrop-filter]:bg-ink/80">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 text-ink-foreground">
+      <div className="mx-auto flex h-28 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-2 py-4 text-ink-foreground">
           <Image src="/logo.png" alt={businessName} width={200} height={71} className="w-[200px] h-auto" priority />
           <span className="sr-only">{businessName}</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -40,9 +37,6 @@ export function SiteHeader({ businessName }: { businessName: string }) {
               {link.label}
             </Link>
           ))}
-        </nav>
-
-        <div className="hidden items-center gap-3 md:flex">
           <Button render={<Link href="/book" />} nativeButton={false} className="bg-gold text-gold-foreground hover:bg-gold/90">
             Book Now
           </Button>
