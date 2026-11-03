@@ -10,7 +10,13 @@ import {
   markBookingStatus,
   rescheduleBooking,
 } from "@/lib/booking-engine";
-import { sendBookingCancellationEmail, sendBookingConfirmationEmail, sendBookingRescheduledEmail } from "@/lib/email";
+import {
+  sendBookingApprovedEmail,
+  sendBookingCancellationEmail,
+  sendBookingConfirmationEmail,
+  sendBookingDeclinedEmail,
+  sendBookingRescheduledEmail,
+} from "@/lib/email";
 import { BookingConflictError, ValidationFailedError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { getBusinessSettings } from "@/lib/settings";
@@ -55,7 +61,6 @@ export async function createAdminBooking(input: unknown): Promise<ActionResult> 
     }
 
     revalidatePath("/admin");
-    revalidatePath("/admin/calendar");
     revalidatePath("/admin/bookings");
     return { ok: true, id: booking.id };
   } catch (err) {
@@ -111,8 +116,64 @@ export async function cancelAdminBooking(bookingId: string, reason?: string): Pr
   }
 
   revalidatePath("/admin");
-  revalidatePath("/admin/calendar");
   revalidatePath("/admin/bookings");
+  return { ok: true };
+}
+
+export async function approveBooking(bookingId: string, note?: string): Promise<ActionResult> {
+  const staffId = await currentStaffId();
+  await markBookingStatus(bookingId, "CONFIRMED", { changedById: staffId, note: note || "Approved by owner" });
+
+  const full = await prisma.booking.findUnique({ where: { id: bookingId }, include: { activity: true, resource: true } });
+  if (full?.customerEmail) {
+    const settings = await getBusinessSettings();
+    await sendBookingApprovedEmail({
+      to: full.customerEmail,
+      customerName: full.customerName ?? "",
+      reference: full.reference,
+      activityName: full.activity.name,
+      resourceName: full.resource.name,
+      dateLabel: formatInTz(full.startTime, settings.timezone, "EEEE d MMMM yyyy"),
+      timeLabel: formatInTz(full.startTime, settings.timezone, "h:mm a"),
+      durationMinutes: full.durationMinutes,
+      priceTotal: full.priceTotal,
+      currency: full.currency,
+      manageUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/manage/${full.manageToken}`,
+      note,
+    });
+  }
+
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${bookingId}`);
+  return { ok: true };
+}
+
+export async function declineBooking(bookingId: string, note?: string): Promise<ActionResult> {
+  const staffId = await currentStaffId();
+  const reason = note || "Sorry, unfortunately we can't go with that time.";
+  const updated = await cancelBooking(bookingId, { reason, changedById: staffId });
+
+  const full = await prisma.booking.findUnique({ where: { id: updated.id }, include: { activity: true, resource: true } });
+  if (full?.customerEmail) {
+    const settings = await getBusinessSettings();
+    await sendBookingDeclinedEmail({
+      to: full.customerEmail,
+      customerName: full.customerName ?? "",
+      reference: full.reference,
+      activityName: full.activity.name,
+      resourceName: full.resource.name,
+      dateLabel: formatInTz(full.startTime, settings.timezone, "EEEE d MMMM yyyy"),
+      timeLabel: formatInTz(full.startTime, settings.timezone, "h:mm a"),
+      durationMinutes: full.durationMinutes,
+      priceTotal: full.priceTotal,
+      currency: full.currency,
+      manageUrl: "",
+      note: note || undefined,
+    });
+  }
+
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${bookingId}`);
   return { ok: true };
 }
 
@@ -190,7 +251,6 @@ export async function rescheduleAdminBooking(input: {
     }
 
     revalidatePath("/admin");
-    revalidatePath("/admin/calendar");
     revalidatePath("/admin/bookings");
     return { ok: true, id: updated.id };
   } catch (err) {

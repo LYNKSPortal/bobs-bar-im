@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { format } from "date-fns";
 
+import { ApproveDeclineButtons } from "@/components/admin/approve-decline-dialog";
+import { BlockFullDayDialog } from "@/components/admin/block-full-day-dialog";
+import { BlockTimeDialog } from "@/components/admin/block-time-dialog";
+import { NewBookingDialog } from "@/components/admin/new-booking-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +16,13 @@ import { listBookings } from "@/server/data/bookings";
 
 const STATUS_OPTIONS = ["ALL", "PENDING", "CONFIRMED", "CANCELLED", "COMPLETED", "NO_SHOW"];
 
+function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+  if (status === "PENDING") return "outline";
+  if (status === "CONFIRMED") return "default";
+  if (status === "CANCELLED") return "destructive";
+  return "secondary";
+}
+
 export default async function AdminBookingsPage({
   searchParams,
 }: {
@@ -20,14 +31,27 @@ export default async function AdminBookingsPage({
   const sp = await searchParams;
   const [{ bookings, total, page, totalPages }, activities] = await Promise.all([
     listBookings({ q: sp.q, status: sp.status, activityId: sp.activityId, page: sp.page ? Number(sp.page) : 1 }),
-    prisma.activity.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.activity.findMany({
+      orderBy: { sortOrder: "asc" },
+      include: { resources: { where: { status: "ACTIVE" }, orderBy: { sortOrder: "asc" } } },
+    }),
   ]);
+  const pendingCount = await prisma.booking.count({ where: { status: "PENDING" } });
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
-      <div>
-        <h1 className="font-heading text-2xl font-bold sm:text-3xl">Bookings</h1>
-        <p className="text-sm text-muted-foreground">{total} total bookings</p>
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="font-heading text-2xl font-bold sm:text-3xl">Bookings</h1>
+          <p className="text-sm text-muted-foreground">
+            {total} total bookings{pendingCount > 0 && <> &middot; <span className="font-medium text-gold">{pendingCount} awaiting approval</span></>}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <NewBookingDialog activities={activities} />
+          <BlockTimeDialog activities={activities} />
+          <BlockFullDayDialog />
+        </div>
       </div>
 
       <form className="flex flex-wrap gap-3" method="GET">
@@ -97,7 +121,11 @@ export default async function AdminBookingsPage({
                 </TableCell>
                 <TableCell className="text-sm">{format(booking.startTime, "d MMM yyyy, h:mm a")}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{booking.status}</Badge>
+                  {booking.status === "PENDING" ? (
+                    <ApproveDeclineButtons bookingId={booking.id} reference={booking.reference} />
+                  ) : (
+                    <Badge variant={statusVariant(booking.status)}>{booking.status}</Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">{formatPrice(booking.priceTotal, booking.currency)}</TableCell>
               </TableRow>

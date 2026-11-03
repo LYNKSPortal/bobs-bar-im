@@ -35,7 +35,10 @@ export async function listBookings(filters: BookingListFilters) {
     prisma.booking.findMany({
       where,
       include: { activity: true, resource: true },
-      orderBy: { startTime: "desc" },
+      // Pending bookings (awaiting approval) surface first, then confirmed,
+      // then cancelled/completed/no-show — matches the BookingStatus enum's
+      // declared order, which Postgres uses natively for enum sorting.
+      orderBy: [{ status: "asc" }, { startTime: "desc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),

@@ -5,10 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  CalendarDays,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
   ListChecks,
   LogOut,
   Martini,
@@ -27,9 +25,7 @@ import { adminSignOut } from "@/server/actions/admin-auth-signout";
 const SIDEBAR_COLLAPSED_KEY = "bobsbar-admin-sidebar-collapsed";
 
 const NAV = [
-  { href: "/admin", label: "Today", icon: LayoutDashboard, exact: true },
-  { href: "/admin/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/admin/bookings", label: "Bookings", icon: ListChecks },
+  { href: "/admin/bookings", label: "Bookings", icon: ListChecks, exact: true },
   { href: "/admin/activities", label: "Activities", icon: Martini },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/payments", label: "Payments", icon: Wallet },

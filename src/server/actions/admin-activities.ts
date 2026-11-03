@@ -76,7 +76,6 @@ export async function createResource(input: unknown): Promise<ActionResult> {
   });
 
   revalidatePath(`/admin/activities/${parsed.data.activityId}`);
-  revalidatePath("/admin/calendar");
   return { ok: true, id: resource.id };
 }
 
@@ -86,7 +85,6 @@ export async function updateResourceStatus(
 ): Promise<ActionResult> {
   const resource = await prisma.resource.update({ where: { id }, data: { status } });
   revalidatePath(`/admin/activities/${resource.activityId}`);
-  revalidatePath("/admin/calendar");
   return { ok: true };
 }
 

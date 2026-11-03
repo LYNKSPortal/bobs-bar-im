@@ -43,12 +43,23 @@ export default async function ConfirmationPage({
     );
   }
 
+  const isPending = booking.status === "PENDING";
+  const isCancelled = booking.status === "CANCELLED";
+
   return (
     <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
       <div className="text-center">
         <CheckCircle2 className="mx-auto size-14 text-gold" />
-        <h1 className="mt-4 font-heading text-3xl font-bold">You&rsquo;re all booked in!</h1>
+        <h1 className="mt-4 font-heading text-3xl font-bold">
+          {isCancelled ? "Booking cancelled" : isPending ? "Request received!" : "You\u2019re all booked in!"}
+        </h1>
         <p className="mt-2 text-muted-foreground">Reference <span className="font-mono font-semibold text-foreground">{booking.reference}</span></p>
+        {isPending && (
+          <p className="mx-auto mt-3 max-w-md rounded-lg bg-accent/15 px-4 py-3 text-sm text-foreground">
+            This temporarily reserves your spot. We&rsquo;ll review and confirm it&rsquo;s all good within 24 hours
+            &mdash; you&rsquo;ll get an email as soon as it&rsquo;s approved.
+          </p>
+        )}
       </div>
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -58,7 +69,7 @@ export default async function ConfirmationPage({
             <p className="text-sm text-muted-foreground">{booking.resource.name}</p>
           </div>
           <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gold">
-            {booking.status}
+            {isPending ? "Pending approval" : booking.status}
           </span>
         </div>
 

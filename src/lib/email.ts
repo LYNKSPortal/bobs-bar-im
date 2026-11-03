@@ -75,6 +75,55 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData) {
   });
 }
 
+export async function sendBookingReceivedEmail(data: BookingEmailData) {
+  if (!resend || !data.to) return { skipped: true };
+
+  return resend.emails.send({
+    from: FROM,
+    to: data.to,
+    subject: `Booking request received \u2014 ${data.reference}`,
+    html: emailShell(
+      `Hi ${data.customerName || "there"}, we&rsquo;ve got your request!`,
+      `<p>This temporarily reserves your spot. It isn&rsquo;t confirmed yet &mdash; we&rsquo;ll review it and get back to
+       you within 24 hours to confirm it&rsquo;s all good.</p>
+       ${detailsTable(data)}
+       <p style="margin:24px 0 0;"><a href="${data.manageUrl}" style="background:#1c1a17;color:#f2c879;padding:12px 20px;border-radius:8px;text-decoration:none;font-size:14px;">View your request</a></p>`
+    ),
+  });
+}
+
+export async function sendBookingApprovedEmail(data: BookingEmailData & { note?: string }) {
+  if (!resend || !data.to) return { skipped: true };
+
+  return resend.emails.send({
+    from: FROM,
+    to: data.to,
+    subject: `Booking approved \u2014 ${data.reference}`,
+    html: emailShell(
+      `Great news, ${data.customerName || "there"} &mdash; you&rsquo;re confirmed!`,
+      `<p>Your booking has been approved and is all good to go.</p>
+       ${data.note ? `<p style="margin:16px 0;padding:12px 16px;background:#f5f3ef;border-radius:8px;">${escapeHtml(data.note)}</p>` : ""}
+       ${detailsTable(data)}
+       <p style="margin:24px 0 0;"><a href="${data.manageUrl}" style="background:#1c1a17;color:#f2c879;padding:12px 20px;border-radius:8px;text-decoration:none;font-size:14px;">Manage your booking</a></p>`
+    ),
+  });
+}
+
+export async function sendBookingDeclinedEmail(data: BookingEmailData & { note?: string }) {
+  if (!resend || !data.to) return { skipped: true };
+
+  return resend.emails.send({
+    from: FROM,
+    to: data.to,
+    subject: `Booking request declined \u2014 ${data.reference}`,
+    html: emailShell(
+      `Sorry ${data.customerName || "there"}, we can&rsquo;t make that time work`,
+      `<p>${data.note ? escapeHtml(data.note) : "Sorry, unfortunately we can't go with that time."}</p>
+       ${detailsTable(data)}`
+    ),
+  });
+}
+
 export async function sendBookingCancellationEmail(data: BookingEmailData) {
   if (!resend || !data.to) return { skipped: true };
 

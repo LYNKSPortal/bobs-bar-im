@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createBooking, cancelBooking, rescheduleBooking } from "@/lib/booking-engine";
-import { sendBookingCancellationEmail, sendBookingConfirmationEmail, sendBookingRescheduledEmail } from "@/lib/email";
+import { sendBookingCancellationEmail, sendBookingReceivedEmail, sendBookingRescheduledEmail } from "@/lib/email";
 import { BookingConflictError, ValidationFailedError } from "@/lib/errors";
 import { createCheckoutSessionForBooking, stripeEnabled } from "@/lib/payments";
 import { prisma } from "@/lib/prisma";
@@ -30,6 +30,9 @@ export async function submitBooking(input: unknown): Promise<BookingActionResult
     const activity = await prisma.activity.findUniqueOrThrow({ where: { id: data.activityId } });
     const requiresPayment = stripeEnabled && activity.paymentMode !== "NONE";
 
+    // Every online booking starts as a reservation request: it temporarily
+    // holds the slot (so nobody else can double-book it) but isn't confirmed
+    // until an admin approves it from the Bookings page.
     const booking = await createBooking({
       activityId: data.activityId,
       resourceId: data.resourceId,
@@ -42,7 +45,7 @@ export async function submitBooking(input: unknown): Promise<BookingActionResult
       customerPhone: data.customerPhone,
       notes: data.notes || undefined,
       source: "ONLINE",
-      status: requiresPayment ? "PENDING" : "CONFIRMED",
+      status: "PENDING",
     });
 
     if (requiresPayment) {
@@ -76,7 +79,7 @@ async function sendConfirmation(bookingId: string) {
   ]);
   if (!booking || !booking.customerEmail) return;
 
-  await sendBookingConfirmationEmail({
+  await sendBookingReceivedEmail({
     to: booking.customerEmail,
     customerName: booking.customerName ?? "",
     reference: booking.reference,

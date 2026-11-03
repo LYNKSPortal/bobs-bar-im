@@ -39,7 +39,6 @@ export async function createAdminBlock(input: unknown): Promise<BlockActionResul
     });
 
     revalidatePath("/admin");
-    revalidatePath("/admin/calendar");
     return { ok: true };
   } catch (err) {
     if (err instanceof BookingConflictError) {
@@ -56,7 +55,6 @@ export async function createAdminBlock(input: unknown): Promise<BlockActionResul
 export async function removeAdminBlock(id: string): Promise<BlockActionResult> {
   await removeBlockedPeriod(id);
   revalidatePath("/admin");
-  revalidatePath("/admin/calendar");
   return { ok: true };
 }
 
@@ -68,7 +66,6 @@ export async function blockFullDayAction(input: {
   try {
     await blockFullDay(input.date, input.reason, input.note);
     revalidatePath("/admin");
-    revalidatePath("/admin/calendar");
     return { ok: true };
   } catch (err) {
     if (err instanceof BookingConflictError) {
