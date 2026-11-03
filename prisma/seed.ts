@@ -58,7 +58,7 @@ async function main() {
   // --- Owner account ------------------------------------------------------
   // NOTE: temporary simple credentials for initial setup/testing.
   // Change this before going live (see admin Settings or re-seed with new values).
-  const ownerEmail = "info@bobsbar.im";
+  const ownerEmail = "accounts@bobsbar.im";
   const ownerPassword = "admin";
   const existingOwner = await prisma.staffUser.findUnique({ where: { email: ownerEmail } });
   if (!existingOwner) {

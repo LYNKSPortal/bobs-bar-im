@@ -7,6 +7,10 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail, emailEnabled } from "@/lib/email";
 
+// Password resets are intentionally restricted to this single admin login,
+// regardless of how many StaffUser rows exist in the database.
+const ALLOWED_RESET_EMAIL = "accounts@bobsbar.im";
+
 export async function requestPasswordReset(
   _prevState: { message?: string; error?: string; devResetUrl?: string } | undefined,
   formData: FormData
@@ -14,11 +18,15 @@ export async function requestPasswordReset(
   const email = String(formData.get("email") ?? "").trim();
   if (!email) return { error: "Enter your admin email/username." };
 
-  const user = await prisma.staffUser.findUnique({ where: { email } });
-
   // Always show the same success message, whether or not the account exists,
   // so this form can't be used to enumerate valid admin logins.
   const genericMessage = "If that account exists, a password reset link has been sent.";
+
+  if (email.toLowerCase() !== ALLOWED_RESET_EMAIL) {
+    return { message: genericMessage };
+  }
+
+  const user = await prisma.staffUser.findUnique({ where: { email: ALLOWED_RESET_EMAIL } });
 
   if (!user || !user.active) {
     return { message: genericMessage };
