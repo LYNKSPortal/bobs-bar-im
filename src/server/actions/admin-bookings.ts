@@ -177,6 +177,22 @@ export async function declineBooking(bookingId: string, note?: string): Promise<
   return { ok: true };
 }
 
+export async function deleteAdminBooking(bookingId: string): Promise<ActionResult> {
+  try {
+    await prisma.$transaction([
+      prisma.payment.deleteMany({ where: { bookingId } }),
+      prisma.bookingStatusEvent.deleteMany({ where: { bookingId } }),
+      prisma.booking.delete({ where: { id: bookingId } }),
+    ]);
+  } catch (err) {
+    console.error("deleteAdminBooking failed", err);
+    return { ok: false, error: "Something went wrong deleting this booking." };
+  }
+
+  revalidatePath("/admin/bookings");
+  return { ok: true };
+}
+
 export async function updateBookingDetails(
   bookingId: string,
   data: { customerName?: string; customerEmail?: string; customerPhone?: string; notes?: string; partySize?: number }

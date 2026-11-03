@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatPrice } from "@/lib/pricing";
 import {
   cancelAdminBooking,
+  deleteAdminBooking,
   markBookingArrived,
   rescheduleAdminBooking,
   updateBookingDetails,
@@ -102,6 +103,15 @@ export function BookingDetailClient({ booking }: { booking: BookingDetail }) {
     if (!result.ok) return toast.error(result.error ?? "Something went wrong.");
     toast.success("Updated.");
     router.refresh();
+  }
+
+  async function handleDelete() {
+    setActionLoading(true);
+    const result = await deleteAdminBooking(booking.id);
+    setActionLoading(false);
+    if (!result.ok) return toast.error(result.error ?? "Something went wrong.");
+    toast.success(`Booking ${booking.reference} deleted.`);
+    router.push("/admin/bookings");
   }
 
   const isCancelled = booking.status === "CANCELLED";
@@ -215,6 +225,40 @@ export function BookingDetailClient({ booking }: { booking: BookingDetail }) {
                 </AlertDialog>
               </div>
             )}
+
+            <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    />
+                  }
+                >
+                  Delete booking
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete booking {booking.reference}?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This permanently deletes the booking and its history &mdash; useful for cleaning up test
+                      bookings. This can&rsquo;t be undone, and no email is sent to the customer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </CardContent>
         </Card>
 

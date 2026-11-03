@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ApproveDeclineButtons } from "@/components/admin/approve-decline-dialog";
 import { BlockFullDayDialog } from "@/components/admin/block-full-day-dialog";
 import { BlockTimeDialog } from "@/components/admin/block-time-dialog";
+import { DeleteBookingButton } from "@/components/admin/delete-booking-button";
 import { NewBookingDialog } from "@/components/admin/new-booking-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,6 +103,7 @@ export default async function AdminBookingsPage({
               <TableHead>Date &amp; time</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Price</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -128,11 +130,14 @@ export default async function AdminBookingsPage({
                   )}
                 </TableCell>
                 <TableCell className="text-right">{formatPrice(booking.priceTotal, booking.currency)}</TableCell>
+                <TableCell>
+                  <DeleteBookingButton bookingId={booking.id} reference={booking.reference} />
+                </TableCell>
               </TableRow>
             ))}
             {bookings.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                   No bookings match your filters.
                 </TableCell>
               </TableRow>
