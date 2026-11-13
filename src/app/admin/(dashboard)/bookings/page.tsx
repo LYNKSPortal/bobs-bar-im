@@ -24,6 +24,14 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
   return "secondary";
 }
 
+function formatDuration(minutes: number) {
+  if (minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return `${hours} hr${hours === 1 ? "" : "s"}`;
+  }
+  return `${minutes} min`;
+}
+
 export default async function AdminBookingsPage({
   searchParams,
 }: {
@@ -101,6 +109,7 @@ export default async function AdminBookingsPage({
               <TableHead>Customer</TableHead>
               <TableHead>Activity</TableHead>
               <TableHead>Date &amp; time</TableHead>
+              <TableHead>Length</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Price</TableHead>
               <TableHead className="w-10" />
@@ -122,6 +131,7 @@ export default async function AdminBookingsPage({
                   {booking.activity.name} &middot; {booking.resource.name}
                 </TableCell>
                 <TableCell className="text-sm">{format(booking.startTime, "d MMM yyyy, h:mm a")}</TableCell>
+                <TableCell className="text-sm">{formatDuration(booking.durationMinutes)}</TableCell>
                 <TableCell>
                   {booking.status === "PENDING" ? (
                     <ApproveDeclineButtons bookingId={booking.id} reference={booking.reference} />
@@ -137,7 +147,7 @@ export default async function AdminBookingsPage({
             ))}
             {bookings.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                   No bookings match your filters.
                 </TableCell>
               </TableRow>

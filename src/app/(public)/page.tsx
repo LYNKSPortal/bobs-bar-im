@@ -29,9 +29,9 @@ export default async function HomePage() {
               <Sparkles className="size-3.5" /> Book instantly, no account needed
             </span>
             <h1 className="mt-6 font-heading text-4xl font-bold leading-tight text-ink-foreground sm:text-5xl lg:text-6xl">
-              Pool, Snooker &amp; Golf.
+              Pool, Snooker, Darts and Golf.
               <br />
-              <span className="text-gold">Book your table in seconds.</span>
+              <span className="text-gold">Book your activity in seconds.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base text-ink-foreground/70 sm:text-lg">
               Real-time availability for every table and simulator. Pick a time, confirm your details, and you&rsquo;re in &mdash;
@@ -51,8 +51,8 @@ export default async function HomePage() {
           <div className="flex items-center gap-3">
             <Clock className="size-6 shrink-0 text-gold" />
             <div>
-              <p className="font-semibold">Instant confirmation</p>
-              <p className="text-sm text-muted-foreground">Your table is locked in the moment you book.</p>
+              <p className="font-semibold">Instant reservation</p>
+              <p className="text-sm text-muted-foreground">Your spot is held the moment you book, confirmed within 24 hours.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
