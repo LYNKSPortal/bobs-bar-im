@@ -17,13 +17,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/pricing";
 import { submitBooking } from "@/server/actions/booking";
 import type { ActiveActivity } from "@/server/data/activities";
-
-import { FloorPlanPicker, type FloorPlanMarker } from "./floor-plan-picker";
 
 export function BookingDetailsDialog({
   open,
@@ -156,36 +154,28 @@ export function BookingDetailsDialog({
             </div>
 
             <div className="mt-4 grid gap-3">
-              {needsResourcePicker && activity.floorPlanEnabled ? (
+              {needsResourcePicker ? (
                 <div className="grid gap-1.5">
                   <Label>Choose a table</Label>
-                  <FloorPlanPicker
-                    resources={activity.resources}
-                    markers={activity.floorPlanMarkers as unknown as FloorPlanMarker[] | null}
-                    availableResourceIds={availableResourceIds}
-                    selectedResourceId={resourceId}
-                    onSelect={setResourceId}
-                  />
-                </div>
-              ) : needsResourcePicker ? (
-                <div className="grid gap-1.5">
-                  <Label>Choose a table</Label>
-                  <Select
-                    value={resourceId}
-                    onValueChange={(v) => v && setResourceId(v)}
-                    items={Object.fromEntries(resources.map((r) => [r.id, r.name]))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {resources.map((r) => (
-                        <SelectItem key={r.id} value={r.id}>
+                  <div className="grid grid-cols-4 gap-2">
+                    {activity.resources
+                      .filter((r) => availableResourceIds.includes(r.id))
+                      .map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setResourceId(r.id)}
+                          className={cn(
+                            "rounded-lg border px-2 py-2.5 text-center text-sm font-medium transition-colors",
+                            resourceId === r.id
+                              ? "border-gold bg-gold/10 ring-1 ring-gold"
+                              : "border-border bg-background hover:border-gold hover:bg-gold/10"
+                          )}
+                        >
                           {r.name}
-                        </SelectItem>
+                        </button>
                       ))}
-                    </SelectContent>
-                  </Select>
+                  </div>
                 </div>
               ) : null}
 
