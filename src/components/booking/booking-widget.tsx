@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2, Phone, Users } from "lucide-react";
 
@@ -45,6 +45,11 @@ export function BookingWidget({
   const [isPending, startTransition] = useTransition();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Until the customer explicitly picks a date themselves, we're free to
+  // auto-advance past days with nothing available so the widget always
+  // lands on a day that actually has times to choose from.
+  const userPickedDateRef = useRef(false);
+  const MAX_AUTO_ADVANCE_DAYS = 14;
 
   function handleActivityChange(nextId: string) {
     setActivityId(nextId);
@@ -53,19 +58,54 @@ export function BookingWidget({
       setDuration(next.defaultDurationMinutes);
       setPartySize(next.minPartySize ?? undefined);
     }
+    userPickedDateRef.current = false;
+    setDate(new Date());
+  }
+
+  function handleDateSelect(d: Date) {
+    userPickedDateRef.current = true;
+    setDate(d);
   }
 
   useEffect(() => {
     if (!activityId) return;
+    let cancelled = false;
+
     startTransition(async () => {
-      const result = await fetchAvailability({
-        activityId,
-        date: toDateKey(date),
-        durationMinutes: duration,
-        resourceId: initialResourceId,
-      });
-      setAvailability(result);
+      setSelectedTime(null);
+      let currentDate = date;
+      for (let attempt = 0; attempt <= MAX_AUTO_ADVANCE_DAYS; attempt++) {
+        const result = await fetchAvailability({
+          activityId,
+          date: toDateKey(currentDate),
+          durationMinutes: duration,
+          resourceId: initialResourceId,
+        });
+        if (cancelled) return;
+
+        const hasAvailable = Boolean(result.ok && result.slots?.some((s) => s.available));
+        const canKeepLooking = !userPickedDateRef.current && attempt < MAX_AUTO_ADVANCE_DAYS;
+
+        if (hasAvailable || !canKeepLooking) {
+          setAvailability(result);
+          if (currentDate.getTime() !== date.getTime()) setDate(currentDate);
+          if (hasAvailable) {
+            const closest = result.slots!.find((s) => s.available);
+            if (closest) setSelectedTime(closest.time);
+          }
+          return;
+        }
+
+        // Nothing available this day and we haven't hit the limit yet —
+        // silently try tomorrow instead of showing a dead end.
+        currentDate = new Date(currentDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [activityId, date, duration, initialResourceId]);
 
   const isDark = variant === "dark";
@@ -138,7 +178,7 @@ export function BookingWidget({
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={(d) => d && setDate(d)}
+                onSelect={(d) => d && handleDateSelect(d)}
                 disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
                 autoFocus
               />
@@ -215,12 +255,12 @@ export function BookingWidget({
           .
         </p>
 
-        {isPending ? (
+        {isPending || availability === null ? (
           <div className={cn("flex items-center gap-2 py-8 text-sm", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
             <Loader2 className="size-4 animate-spin" /> Checking availability...
           </div>
-        ) : !availability?.ok ? (
-          <p className="py-8 text-sm text-destructive">{availability?.error ?? "Unable to load availability."}</p>
+        ) : !availability.ok ? (
+          <p className="py-8 text-sm text-destructive">{availability.error ?? "Unable to load availability."}</p>
         ) : availability.slots && availability.slots.filter((s) => s.available).length > 0 ? (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
             {availability.slots
@@ -236,7 +276,8 @@ export function BookingWidget({
                     "flex flex-col items-center rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors",
                     isDark
                       ? "border-white/15 bg-white/5 text-ink-foreground hover:border-gold hover:bg-gold/10 hover:text-gold"
-                      : "border-border bg-background hover:border-gold hover:bg-gold/10"
+                      : "border-border bg-background hover:border-gold hover:bg-gold/10",
+                    selectedTime === slot.time && "border-gold bg-gold/10 ring-1 ring-gold"
                   )}
                 >
                   <span>{formatTimeLabel(slot.time)}</span>
