@@ -34,7 +34,7 @@ export default async function HomePage() {
               <span className="text-gold">Book your activity in seconds.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base text-ink-foreground/70 sm:text-lg">
-              Real-time availability for every table and simulator. Pick a time, confirm your details, and you&rsquo;re in &mdash;
+              Real time availability for every table and simulator. Pick a time, confirm your details, and you&rsquo;re in,
               no phone calls required.
             </p>
           </div>
