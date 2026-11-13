@@ -248,7 +248,7 @@ export function BookingWidget({
         </p>
         <p className={cn("mb-3 flex items-center gap-1.5 text-xs", isDark ? "text-ink-foreground/60" : "text-muted-foreground")}>
           <Phone className="size-3.5 shrink-0 text-gold" />
-          Need something within the next hour or two? Call us on{" "}
+          Need something within the next 4 hours? Call us on{" "}
           <a href="tel:01624622333" className="font-medium text-gold hover:underline">
             01624 622333
           </a>

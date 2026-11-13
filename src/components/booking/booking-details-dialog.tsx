@@ -113,10 +113,15 @@ export function BookingDetailsDialog({
             <span className="flex size-14 items-center justify-center rounded-full bg-accent/20 text-accent-foreground">
               <PartyPopper className="size-7 text-gold" />
             </span>
-            <DialogTitle className="font-heading text-2xl">Booking confirmed!</DialogTitle>
+            <DialogTitle className="font-heading text-2xl">Booking pending</DialogTitle>
             <DialogDescription>
-              Reference <span className="font-mono font-semibold text-foreground">{success.reference}</span>. A
-              confirmation has been noted on your booking{email ? " and emailed to you" : ""}.
+              Reference <span className="font-mono font-semibold text-foreground">{success.reference}</span>. This
+              temporarily reserves your spot{email ? " and we've emailed you the details" : ""} &mdash; we&rsquo;ll
+              confirm it within 24 hours. Need it within the next 4 hours? Call us on{" "}
+              <a href="tel:01624622333" className="font-medium text-gold hover:underline">
+                01624 622333
+              </a>
+              .
             </DialogDescription>
             <Button
               className="mt-2 w-full bg-gold text-gold-foreground hover:bg-gold/90"
