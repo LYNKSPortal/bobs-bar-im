@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | Bob's Bar",
   },
   description:
-    "Book pool tables, snooker tables, golf simulators, and darts online at Bob's Bar. Real-time availability, instant confirmation.",
+    "Book pool tables, snooker tables, golf simulators, and darts online at Bob's Bar. Real time availability, confirmed within 24 hours.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
